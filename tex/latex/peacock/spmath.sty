@@ -1,0 +1,299 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{spmath}
+              [2012/12/12 v1.0
+              Non Standard LaTeX Package]
+
+\input{spcommon.def}
+
+\newif\ifsp@arrows
+\DeclareOption{noarrows}{\sp@arrowsfalse}
+\DeclareOption{arrows}{\sp@arrowstrue}
+
+\ExecuteOptions{arrows,fixotimes}
+\ProcessOptions
+
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{tikz}
+
+%%%%%% Define left subscript command
+\def\leftsub#1#2{%
+        \mathop{}%
+        \mathopen{\vphantom{#2}}_{#1}%
+        \kern-\scriptspace%
+        #2}
+
+%%%%%% Define \usedisplaylimits macro %%%%%%%%%%%%%
+\def\setdisplayop#1{%
+  \expandafter\ifx\csname #1\endcsname\relax%
+    \PackageError{spmath}{%
+      Macro #1 is undefined while attempting\MessageBreak
+      to set it as a display operator.}{}\else
+  \expandafter\ifx\csname sp@stdlim@#1\endcsname\relax%
+    \expandafter\global\expandafter\let\csname%
+      sp@stdlim@#1\expandafter\endcsname\csname #1\endcsname%
+    \expandafter\gdef\csname #1\endcsname{\operatorname*{\csname%
+        sp@stdlim@#1\endcsname}}%
+  \fi\fi%
+}
+\def\usedisplaylimits#1{%
+  \expandafter\ifx\csname #1\endcsname\relax%
+    \PackageError{spmath}{%
+      Macro #1 is undefined while attempting\MessageBreak
+      to set it to use display limits}{}\else%
+    \setdisplayop{#1}%
+    \expandafter\gdef\csname #1\endcsname{\operatorname*{\csname%
+        sp@stdlim@#1\endcsname}\limits}%
+  \fi%
+}
+
+
+%%%%%%% Define \usedisplaylimits macro %%%%%%%%%%%%%
+%\def\usedisplaylimits#1{
+%  \expandafter\global\expandafter%
+%    \let\csname sp@old@#1\expandafter\endcsname\csname #1\endcsname
+%  \expandafter\gdef\csname @#1bt\endcsname##1^##2{%
+%    {\operatorname*{\csname sp@old@#1\endcsname}\limits_{##1}^{##2}}}
+%  \expandafter\gdef\csname @#1b\endcsname_##1{%
+%    \@ifnextchar^{\csname @#1bt\endcsname{##1}}%
+%    {\csname @#1bt\endcsname{##1}^{}}}
+%  \expandafter\gdef\csname @#1tb\endcsname##1_##2{%
+%    {\operatorname*{\csname sp@old@#1\endcsname}\limits^{##1}_{##2}}}
+%  \expandafter\gdef\csname @#1t\endcsname^##1{%
+%    \@ifnextchar_{\csname @#1tb\endcsname{##1}}%
+%    {\csname @#1tb\endcsname{##1}_{}}}
+%  \expandafter\gdef\csname #1\endcsname{%
+%    \@ifnextchar_{\csname @#1b\endcsname}%
+%      {\@ifnextchar^{\csname @#1t\endcsname}
+%      {\csname sp@old@#1\endcsname}}}
+%}
+%\def\usestdlimits#1{
+%  \expandafter\ifx\csname sp@old@#1\endcsname\relax
+%  \else
+%    \expandafter\let\csname #1\expandafter\endcsname%
+%      \csname sp@old@#1\endcsname
+%  \fi
+%}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Redefine align environment to allow line spacing %%%%%%%%%%%%
+\let\sp@align\align
+\let\endsp@align\endalign
+\expandafter\let\expandafter\sp@align@st@r\csname align*\endcsname
+\expandafter\let\expandafter\endsp@align@st@r\csname endalign*\endcsname
+
+\renewenvironment{align}[1][1ex]{\jot=#1\sp@align}{\endsp@align}
+\renewenvironment{align*}[1][1ex]{\jot=#1\sp@align@st@r}{\endsp@align@st@r}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%% Define new arrows %%%%%%%%%%%%%%%%%%%%%
+\ifsp@arrows
+  \def\@twoheadrelbar{\relbar\!\!\!\!\!}
+  \AtBeginDocument{%
+      \def\twoheadrightarrow{\ooalign{
+      $\rightarrow$\cr$\@twoheadrelbar\rightarrow$}}%
+  }
+  \def\longtwoheadrightarrow{%
+    \ooalign{$\longrightarrow$\cr$\@twoheadrelbar\longrightarrow$}}
+  \def\hookrightarrow{\lhook\joinrel\rightarrow}
+  \def\longhookrightarrow{\lhook\joinrel\longrightarrow}
+  \def\mapsfrom{\reflectbox{$\mapsto$}}
+  \def\longmapsfrom{\reflectbox{$\longmapsto$}}
+  \def\curvearrowdown{\rotatebox[origin=c]{270}{$\curvearrowright$}}
+  \def\curvearrowup{\rotatebox[origin=c]{90}{$\curvearrowright$}}
+  \newcommand{\edge}[3]{{#2}\overset{#1}{\rightarrow}{#3}}
+  \newcommand{\oversim}[1]{\stackrel{\sim}{\smash{#1}\rule{0pt}{0.4ex}}}
+  \newcommand{\simrightarrow}{\oversim{\rightarrow}}
+  \newcommand{\longsimrightarrow}{\oversim{\longrightarrow}}
+  \newcommand{\simleftarrow}{\oversim{\leftarrow}}
+  \newcommand{\longsimleftarrow}{\oversim{\longleftarrow}}
+  \def\oplusarrow#1{\mathbin{\ooalign{$#1$\cr%
+			\hidewidth$\oplus$\hidewidth\cr}}}
+  \def\oplusrightarrow{\oplusarrow\longrightarrow}
+  \def\oplushookrightarrow{\oplusarrow\longhookrightarrow}
+  \def\oplustwoheadrightarrow{\oplusarrow\longtwoheadrightarrow}
+\fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%% DeclareMathOperators %%%%
+\def\sp@declareMO#1{%
+  \expandafter\DeclareMathOperator\csname #1\endcsname{#1}}
+\def\DeclareMathOperators#1{\sp@declare{sp@declareMO}{#1}}
+%\DeclareMathOperators{Id,id,Hom,Fun,End,Ext,Tor,%
+%  coker,im,coim,rad,soc,hd}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Declare BB macros %%%%%
+\def\sp@declareBB#1{%
+  \expandafter\def\csname bb#1\endcsname{\mathbb{#1}}}
+\def\DeclareBBSymbols#1{\sp@declare{sp@declareBB}{#1}}
+%\DeclareBBSymbols{N,Z,Q,R,C}
+%%%%%%%%%%%%%%%%
+
+%%% Declare Script Operators %%%%
+\def\sp@declareSO#1{%
+  \expandafter\def\csname #1\endcsname{%
+    {\ifmmode\else\@badmath\fi{\rm #1}}%
+  }%
+}
+\def\DeclareScriptOperators#1{\sp@declare{sp@declareSO}{#1}}
+%\DeclareScriptOperators{op,tr}
+%%%%%%%%%%%%%%
+
+%%% Declare Script Operators %%%%
+\def\sp@declareCO#1{%
+  \expandafter\def\csname #1\endcsname{\cat{#1}}}
+\def\DeclareCatOperators#1{\sp@declare{sp@declareCO}{#1}}
+%\DeclareScriptOperators{op,tr}
+%%%%%%%%%%%%%%
+
+
+\def\@setfrac#1#2#3#4#5{%
+	\left.\raisebox{#4}[\heightof{$#1$}][\depthof{$#1$}]{$#1$}%
+	\middle#3%
+	\raisebox{#5}[\heightof{$#2$}][\depthof{$#2$}]{$#2$}%
+	\right.}
+\def\setfrac#1#2{\@setfrac{#1}{#2}{\slash}{0.8ex}{-0.8ex}}
+\def\setbackfrac#1#2{\@setfrac{#1}{#2}{\backslash}{-0.8ex}{0.8ex}}
+
+\newcommand{\seq}[1]{ #1\dots #1 }
+\newcommand{\cat}[1]{\operatorname{\bf #1}\@ifnextchar(%
+    {}{\@ifnextchar\left{}{\,}}}
+\newcommand{\AdashB}[2]{{#1}%
+  \kern-\nulldelimiterspace{-}%
+  \kern-\nulldelimiterspace{#2}}
+\newcommand{\Amod}[1]{\AdashB{#1}{\cat{mod}}}
+\newcommand{\AMod}[1]{\AdashB{#1}{\cat{Mod}}}
+\newcommand{\modA}[1]{\AdashB{\cat{mod}}{#1}}
+\newcommand{\ModA}[1]{\AdashB{\cat{Mod}}{#1}}
+\newcommand{\restrict}[2]{#1\rule[-1ex]{0.5pt}{2.5ex}_{#2}}	
+
+\DeclareMathOperator{\cone}{\,
+    \begin{tikzpicture}[baseline]
+      \draw [dash pattern=on 0pt off 0.5pt on 1pt off 0.5pt] 
+         (0,0) arc (0:180:1ex and 0.4ex); 
+      \draw 
+         (0,0) arc (0:-180:1ex and 0.4ex);
+      \draw 
+         (0,0) -- (-1ex,2.4ex) -- (-2ex,0);
+    \end{tikzpicture}}
+\DeclareMathOperator{\cyl}{\,
+    \begin{tikzpicture}[baseline]
+      \draw [dash pattern=on 0pt off 0.5pt on 1pt off 0.5pt] 
+         (0,0) arc (0:180:1ex and 0.4ex);
+      \draw
+         (0,0) arc (0:-180:1ex and 0.4ex);
+      \draw 
+         (-1ex,2ex) ellipse (1ex and 0.4ex);
+      \draw 
+         (0,0) -- (0,2ex);
+      \draw 
+         (-2ex,0) -- (-2ex,2ex);
+    \end{tikzpicture}}
+
+%\newcommand{\sfrac}[2]{\raisebox{0.5ex}{$\scriptstyle#1$}\mkern-6mu%
+%  \raisebox{0.1ex}{$\scriptstyle\diagup$}%
+%  \mkern-5.5mu\raisebox{-0.2ex}{$\scriptstyle#2$}}
+\def\set{\sp@set{}}
+\def\lrset{\sp@set{x}}
+\def\sp@set#1{%
+  \@ifnextchar[{\sp@seta{#1}}%
+    {\sp@seta{#1}[\{\}]}}
+\def\sp@seta#1[#2#3]#4{
+  \@ifnextchar[{\sp@setb{#1}{#2}{#3}{#4}}%
+    {\sp@setb{#1}{#2}{#3}{#4}[]}}
+\def\sp@setb#1#2#3#4[#5]{%
+  \sp@l{#1}#2\,#4%
+  \ifx#5\empty\else\,\sp@m{#1}|\,#5\fi%
+  \,\sp@r{#1}#3}
+\def\sp@l#1{\if#1x\left\fi}
+\def\sp@m#1{\if#1x\middle\fi}
+\def\sp@r#1{\if#1x\right\fi}
+ 
+\def\sp@ses#1#2{%
+  \@ifnextchar[{\sp@sesa{#1}{#2}}{\sp@sesa{#1}{#2}[]}%
+}
+\def\sp@sesa#1#2[#3]#4{%
+  \@ifnextchar[{\sp@sesb{#1}{#2}{#3}{#4}}{\sp@sesb{#1}{#2}{#3}{#4}[]}%
+}
+\def\sp@sesb#1#2#3#4[#5]#6{%
+  \/0 #1 #2 \overset{#3}{#1} #4 \overset{#5}{#1} #6 #1 0\/
+}
+
+\newcommand{\ses}{\sp@ses\rightarrow}
+\newcommand{\longses}{\sp@ses\longrightarrow}
+
+\RequirePackage[artemisia]{textgreek}
+\RequirePackage{alphalph}
+\def\@greek#1{%
+  \ifcase #1%
+    \or \textalpha%
+    \or \textbeta%
+    \or \textgamma%
+    \or \textdelta%
+    \or \textepsilon%
+    \or \textzeta%
+    \or \texteta%
+    \or \texttheta%
+    \or \textiota%
+    \or \textkappa%
+    \or \textlambda%
+    \or \textmugreek%
+    \or \textnu%
+    \or \textxi%
+    \or \textomikron%
+    \or \textpi%
+    \or \textrho%
+    \or \textsigma%
+    \or \texttau%
+    \or \textupsilon%
+    \or \textphi%
+    \or \textchi%
+    \or \textpsi%
+    \or \textomega%
+    \else \@ctrerr%
+  \fi%
+}
+\def\@Greek#1{%
+  \ifcase #1%
+    \or \textAlpha%
+    \or \textBeta%
+    \or \textGamma%
+    \or \textDelta%
+    \or \textEpsilon%
+    \or \textZeta%
+    \or \textEta%
+    \or \textTheta%
+    \or \textIota%
+    \or \textKappa%
+    \or \textLambda%
+    \or \textMu%
+    \or \textNu%
+    \or \textXi%
+    \or \textOmikron%
+    \or \textPi%
+    \or \textRho%
+    \or \textSigma%
+    \or \textTau%
+    \or \textUpsilon%
+    \or \textPhi%
+    \or \textXi%
+    \or \textPsi%
+    \or \textOmega%
+    \else \@ctrerr%
+  \fi%
+}
+\newalphalph{\@wrapgreek}[wrap]{\@greek}{24}
+\newalphalph{\@wrapGreek}[wrap]{\@Greek}{24}
+\def\greek#1{\expandafter \@wrapgreek \csname c@#1\endcsname}
+\def\Greek#1{\expandafter \@wrapGreek \csname c@#1\endcsname}
+
+\AtBeginDocument{%
+  \expandafter\ifx\csname @enhook\endcsname\relax%
+  \else
+    \g@addto@macro\@enhook{%
+      \ifx g\@entemp\def\@tempa{\@enLabel\greek}\else%
+      \ifx G\@entemp\def\@tempa{\@enLabel\Greek}\fi\fi}%
+  \fi}

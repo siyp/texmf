@@ -1,0 +1,40 @@
+\ProvidesFile{spcommon.def}
+  [2012/12/12 v1.0 Common code for the sp latex styles/classes]
+
+%% Hyphenations
+\hyphenation{in-de-comp-os-able}
+%%%%%%%%%
+
+
+%%%%%% provideenvironment/defenvironment commands %%%%%%%%%%%%
+\def\sp@dummy{\relax}
+\def\provideenvironment{\@star@or@long\provide@environment}
+\def\provide@environment#1{%
+  \@ifundefined{#1}%
+    {\def\reserved@a{\newenvironment{#1}}}%
+    {\def\reserved@a{\renewenvironment{sp@dummy}}}%
+  \reserved@a
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%% defenvironment command %%%%%%%%%%%%
+\def\defenvironment{\@star@or@long\def@environment}
+\def\def@environment#1{%
+  \@ifundefined{#1}%
+    {\def\reserved@a{\newenvironment{#1}}}%
+    {\def\reserved@a{\renewenvironment{#1}}}%
+  \reserved@a
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% define scan macro %%%%%%%%%%%%%%
+\def\sp@relax#1{\relax}
+\def\sp@scan#1#2,{%
+  \ifx#2\relax
+    \let\sp@next\sp@relax
+  \else
+    \csname #1\endcsname{#2}\let\sp@next\sp@scan%
+  \fi\sp@next{#1}%
+}
+\def\sp@declare#1#2{\sp@scan{#1}#2,\relax,}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

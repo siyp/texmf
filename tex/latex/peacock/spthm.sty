@@ -1,0 +1,168 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{spthm}
+              [2012/12/12 v1.0
+              Non Standard LaTeX Package]
+
+\input{spcommon.def}
+
+\newif\ifsp@theorems
+\DeclareOption{notheorems}{\sp@theoremsfalse}
+\DeclareOption{theorems}{\sp@theoremstrue}
+
+\ExecuteOptions{theorems}
+\ProcessOptions
+
+
+\RequirePackage{framed}
+\RequirePackage{calc}
+\RequirePackage{amsmath}
+\RequirePackage{amsthm}
+\RequirePackage{ifthen}
+
+
+%% Increase spacing before theorems
+\begingroup
+    \@for\theoremstyle:=definition,remark,plain\do{%
+        \expandafter\g@addto@macro\csname th@\theoremstyle\endcsname{%
+        \addtolength\thm@preskip\parskip
+    }%
+}
+\endgroup
+
+%%%% Define sp theorem style %%%%%%%%%%%%%%%%%%%%%%%
+\let\sp@defaultframe\FrameCommand
+
+\newlength{\sp@hgt}
+\def\sp@framex{%
+  \vbox{%
+    \hbox{\hspace{4pt}%
+      \rule{1pt}{\sp@hgt}%
+      \hspace {1pt}%
+      \rule{2pt}{\sp@hgt}%
+      \hspace {1em}}}}
+
+\def\sp@frame{%
+  \vbox{\hbox{\hfil\hspace{1em}}%
+    \vspace{0.8ex}
+    \hbox{%
+      \hspace{4pt}%
+      \rule{1pt}{\sp@hgt-\baselineskip}%
+      \hspace {1pt}%
+      \rule{2pt}{\sp@hgt-\baselineskip}%
+      \hspace {1em}}}}
+
+\newenvironment{sp@thmstyle}[3][]%
+    { \vspace{\parskip}\par\noindent%
+      \def\FrameCommand {\sp@hgt=\ht\@tempboxa\sp@frame}%
+      \def\FirstFrameCommand{\sp@hgt=\ht\tw@\sp@frame}%
+      \def\MidFrameCommand{\sp@hgt=\ht\tw@\sp@framex}%
+      \def\LastFrameCommand{\sp@hgt=\ht\@tempboxa\sp@framex}%
+      \MakeFramed {\advance \hsize -\width \FrameRestore}%
+      \parindent=0pt\parskip=1ex%
+      \hspace*{-1em}\hspace*{-8pt}
+      {{\bfseries #3{\ifx#2\empty\else{} #2\fi:}}{ \emph{
+          #1}}}\par\vspace{0.2ex}}% 
+    {\endMakeFramed\vspace{-\parskip}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Redefine newtheorem command %%%%
+\def\sp@newtheorem{\@ifstar{\sp@thmstar}{\sp@thmnostar}}
+\def\sp@thmstar#1#2{\sp@newthm{#1}[*]{#2}}
+\def\sp@thmnostar#1{%
+  \@ifnextchar[%
+  {\sp@newthm{#1}}%
+    {\sp@newthmandcnt{#1}}%
+}
+\def\sp@newthmandcnt#1#2{%
+  \@ifnextchar[%
+    {\sp@newthmandcntA{#1}{#2}}%
+    {\sp@newthmandcntB{#1}{#2}}%
+}
+\def\sp@newthmandcntA#1#2[#3]{%
+  \newcounter{#1}[#3]%
+  \expandafter\def\csname the#1\endcsname{%
+    \csname the#3\endcsname.\arabic{#1}}%
+  \sp@newthm{#1}[#1]{#2}
+}
+\def\sp@newthmandcntB#1#2{%
+  \newcounter{#1}%
+  \expandafter\def\csname the#1\endcsname{\arabic{#1}}
+  \sp@newthm{#1}[#1]{#2}
+}
+\def\sp@newthm#1[#2]#3{%
+  \provideenvironment{#1}[1][]%
+  {\expandafter\ifx\csname the#2\endcsname\relax%
+      \begin{sp@thmstyle}[##1]{}{#3}
+    \else%
+      \refstepcounter{#2}
+      \begin{sp@thmstyle}[##1]{\csname the#2\endcsname}{#3}
+  \fi}
+  {\end{sp@thmstyle}}
+}
+\let\sp@old@theoremstyle\theoremstyle
+\let\sp@old@newtheorem\newtheorem
+\def\theoremstyle#1{%
+  \ifthenelse{\equal{#1}{bordered}}
+    {\def\newtheorem{\sp@newtheorem}}%
+    {\def\newtheorem{\sp@old@newtheorem}\sp@old@theoremstyle{#1}}%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%% Define Theorem environemnts %%%%%%%%%%%%%%%%
+\ifsp@theorems
+  \theoremstyle{bordered}
+  \newtheorem{theorem}{Theorem}[section]
+  \newtheorem{lemma}[theorem]{Lemma}
+  \newtheorem{corollary}[theorem]{Corollary}
+  \newtheorem{proposition}[theorem]{Proposition}
+
+  \newtheorem*{definition}{Definition}
+
+  \theoremstyle{remark}
+  \newtheorem*{example}{Example}
+  \newtheorem*{note}{Note}
+
+  \theoremstyle{bordered}
+\fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%% Define QED symbol %%%%%%%%%%%
+%\def\qed{{
+%  \parfillskip=0pt
+%  \widowpenalty=10000
+%  \displaywidowpenalty=10000
+%  \finalhyphendemerits=0 
+%  \leavevmode\unskip\nobreak
+%  \hfil\penalty50\hskip.2em
+%  \null\hfill$\square$\par}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\old@proof\proof
+\expandafter\def\expandafter\proof\expandafter{\old@proof\leavevmode}
+\let\old@proof\relax
+
+\newlength\sp@TFAElr
+\newlength\sp@TFAEc
+\settowidth\sp@TFAElr{(vii)}
+\settowidth\sp@TFAEc{$\Leftrightarrow$}
+\newenvironment{TFAEproof}
+  { \def\sp@lab##1##2##3{\begin{tabular}%
+        {@{}p{\sp@TFAElr}@{ }p{\sp@TFAEc}@{ }p{\sp@TFAElr}@{}}%
+        \centering (\romannumeral##1) & \centering ##2 & 
+        \centering (\romannumeral##3)%
+      \end{tabular}}
+    \def\rgt##1##2{\item [\sp@lab{##1}{$\Rightarrow$}{##2}]}
+    \def\lft##1##2{\item [\sp@lab{##1}{$\Leftarrow$}{##2}]}
+    \def\bth##1##2{\item [\sp@lab{##1}{$\Leftrightarrow$}{##2}]}
+    \begin{proof}\begin{list}{}{%
+          %\settowidth\labelwidth{\sp@lab7{$\Leftrightarrow$}7}%
+          \labelwidth1.5em
+          \leftmargin\labelwidth
+          \advance\leftmargin2em%
+          \labelsep1em}
+      %\item[]
+    }
+    {\end{list}\end{proof}}
+

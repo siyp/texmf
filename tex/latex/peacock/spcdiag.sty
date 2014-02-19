@@ -1,0 +1,149 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{spcdiag}
+              [2012/12/12 v1.0
+              Non Standard LaTeX Package]
+
+\input{spcommon.def}
+
+\RequirePackage{spmath}
+\RequirePackage{tikz}
+\usetikzlibrary{matrix,arrows}
+
+
+%%%%%%%%%%%% Commutative Diagram Environment %%%%%%%%%%%%%%%
+\pgfarrowsdeclare{|'}{|'}
+{
+  \pgfarrowsleftextend{0.5\pgflinewidth}
+  \pgfarrowsrightextend{0.5\pgflinewidth}
+}
+{
+  \arrowsize=0.28pt
+  \advance\arrowsize by .3\pgflinewidth
+  \pgfsetdash{}{0pt} % do not dash
+  \pgfpathmoveto{\pgfpoint{0}{3.5\arrowsize}}
+  \pgfpathlineto{\pgfpoint{0}{-3.5\arrowsize}}
+  \pgfusepathqstroke}
+\def\matrixnode#1#2{(m\thematrixcount-#1-#2)}
+\def\sp@ar#1#2#3#4#5#6{%
+  \@ifnextchar[%
+  {\sp@arb{#1}{#2}{#3}{#4}{#5}{#6}}%
+  {\sp@arb{#1}{#2}{#3}{#4}{#5}{#6}[]}%
+}
+\def\sp@arb#1#2#3#4#5#6[#7]{%
+  \@ifnextchar[%
+  {\sp@arc{#1}{#2}{#3}{#4}{#5}{#6}{#7}}%
+  {\sp@arc{#1}{#2}{#3}{#4}{#5}{#6}{#7}[]}%
+}
+\def\sp@arc#1#2#3#4#5#6#7[#8]{%
+  \@ifnextchar[%
+  {\sp@ard{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}}%
+  {\sp@ard{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}[]}%
+}
+\newcounter{sp@cdiagmat@acnt}
+\newcounter{sp@cdiagmat@bcnt}
+\def\sp@ard#1#2#3#4#5#6#7#8[#9]{
+  \setcounter{sp@cdiagmat@acnt}{#5}
+  \addtocounter{sp@cdiagmat@acnt}{#1}
+  \setcounter{sp@cdiagmat@bcnt}{#6}
+  \addtocounter{sp@cdiagmat@bcnt}{#2}
+  \draw[->,>=stealth']
+  \matrixnode{#5}{#6} edge [#9]  
+  node [#3] {$\scriptstyle #7$} 
+  node [#4] {$\scriptstyle #8$} 
+  (m\thematrixcount-\thesp@cdiagmat@acnt-\thesp@cdiagmat@bcnt);}
+
+\def\exacth#1#2{
+  \draw (m\thematrixcount-#1-#2.north west) --
+  (m\thematrixcount-#1-#2.north east); 
+  \draw (m\thematrixcount-#1-#2.south west) --
+  (m\thematrixcount-#1-#2.south east); 
+}
+\def\exactv#1#2{
+  \draw (m\thematrixcount-#1-#2.north west) --
+  (m\thematrixcount-#1-#2.south west); 
+  \draw (m\thematrixcount-#1-#2.north east) --
+  (m\thematrixcount-#1-#2.south east); 
+}
+\def\exact#1#2{
+  \exacth{#1}{#2}
+  \exactv{#1}{#2}
+}  
+  
+
+\newcounter{matrixcount}
+\newenvironment{cdiag}[1][]
+  {
+    \stepcounter{matrixcount}
+    \let\ar\sp@ar
+    \def\ul##1##2{\ar{-1}{-1}{above right}{below left}{##1}{##2}}
+    \def\u ##1##2{\ar{-1}{ 0}{left}{right}{##1}{##2}}
+    \def\ur##1##2{\ar{-1}{ 1}{above left}{below right}{##1}{##2}}
+    \def\r ##1##2{\ar{ 0}{ 1}{above}{below}{##1}{##2}}
+    \def\dr##1##2{\ar{ 1}{ 1}{above right}{below left}{##1}{##2}}
+    \def\d ##1##2{\ar{ 1}{ 0}{left}{right}{##1}{##2}}
+    \def\dl##1##2{\ar{ 1}{-1}{above left}{below right}{##1}{##2}}
+    \def\l ##1##2{\ar{ 0}{-1}{above}{below}{##1}{##2}}
+    \def\ulx##1##2##3##4{\ar{-##3}{-##4}{above right}{below left}{##1}{##2}}
+    \def\ux ##1##2##3{   \ar{-##3}{   0}{left}{right}{##1}{##2}}
+    \def\urx##1##2##3##4{\ar{-##3}{ ##4}{above left}{below right}{##1}{##2}}
+    \def\rx ##1##2##3{   \ar{   0}{ ##3}{above}{below}{##1}{##2}}
+    \def\drx##1##2##3##4{\ar{ ##3}{ ##4}{above right}{below left}{##1}{##2}}
+    \def\dx ##1##2##3{   \ar{ ##3}{   0}{left}{right}{##1}{##2}}
+    \def\dlx##1##2##3##4{\ar{ ##3}{-##4}{above left}{below right}{##1}{##2}}
+    \def\lx ##1##2##3{   \ar{   0}{-##3}{above}{below}{##1}{##2}}
+    \pgfkeyssetvalue{/tikz/scale width}{1.0}
+    \pgfkeyssetvalue{/tikz/scale height}{1.0}
+    \pgfkeys{/tikz/scale/.code={%
+        \pgfkeyssetvalue{/tikz/scale width}{##1}%
+        \pgfkeyssetvalue{/tikz/scale height}{##1}%
+      }}
+    \begin{aligned}\begin{tikzpicture}[
+       over line/.style={
+         preaction={-,draw=white,line width=6pt},
+         draw=black},
+       half width/.style={scale width=0.5},
+       half height/.style={scale height=0.5},
+       half size/.style={scale=0.5},
+       no row sep/.style={
+         text height=1.5ex,
+         text depth=0pt,
+         row sep=0pt},
+       no column sep/.style={
+         column sep=0pt},
+       equal/.style={
+         double,
+         double equal sign distance,
+         -},
+       shift up/.style={transform canvas={yshift=0.3ex}},
+       shift down/.style={transform canvas={yshift=-0.3ex}},
+       shift right/.style={transform canvas={xshift=0.3ex}},
+       shift left/.style={transform canvas={xshift=-0.3ex}},
+       big shift up/.style={transform canvas={yshift=0.7ex}},
+       big shift down/.style={transform canvas={yshift=-0.7ex}},
+       big shift right/.style={transform canvas={xshift=0.7ex}},
+       big shift left/.style={transform canvas={xshift=-0.7ex}},
+       displaystyle/.style={
+         nodes={execute at begin node={\displaystyle}}},
+       textstyle/.style={
+         nodes={execute at begin node={\textstyle}}},
+       scriptstyle/.style={
+         nodes={execute at begin node={\scriptstyle}}},
+       scriptscriptstyle/.style={
+         nodes={execute at begin node={\scriptscriptstyle}}},
+       ]
+       \matrix (m\thematrixcount) [
+      matrix of math nodes,
+       nodes={execute at begin node={\displaystyle},
+            anchor=center,
+            minimum height=3.5ex*\pgfkeysvalueof{/tikz/scale height},
+        },
+       row sep=2em*\pgfkeysvalueof{/tikz/scale height},
+       column sep=2.5em*\pgfkeysvalueof{/tikz/scale width},
+       fill=none,
+%       text height=2.5ex*\pgfkeysvalueof{/tikz/scale height}, 
+%       text depth=1ex*\pgfkeysvalueof{/tikz/scale height},
+       #1] }
+     {\end{tikzpicture}\end{aligned}\addtocounter{matrixcount}{-1}}
+
+
+\endinput
