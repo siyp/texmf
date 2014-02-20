@@ -645,7 +645,7 @@
 %\RequirePackage{morefloats}
 \RequirePackage{bibentry}
 \RequirePackage[numbers]{natbib}
-\RequirePackage{bophook}
+%\RequirePackage{bophook}
 \RequirePackage{ifpdf}
 \RequirePackage{zref-abspos,zref-lastpage}
 \RequirePackage[absolute]{textpos}
@@ -754,7 +754,8 @@
 	\ifsp@bib
 		\AtBeginDocument{\nobibliography*\bibliographystyle{spalpha}}
 	\fi
-	\AtBeginDocument{\@djustm@rginp@siti@ns\pl@ceb@xes@np@ge}
+	\AtBeginDocument{\@ch@ckskipp@edb@x@s%
+        \@djustm@rginp@siti@ns\pl@ceb@xes@np@ge}
 	\AtBeginShipout{\pl@ceb@xes@np@ge}
 
 	\let\sp@oldmarginpar\marginpar
@@ -831,12 +832,22 @@
 			\setlength{\lastadjust}{\getadj{\theB}}%
 		}%
 	}
+    \def\skip@b@x#1{%
+        \expandafter\ifx\csname mp@skipb@x@data#1\endcsname\relax%
+            0%
+        \else%
+            \csname mp@skipb@x@data#1\endcsname%
+        \fi%
+    }
 	\def\pl@ceb@x#1{%
 		\stepcounter{abspage}
 		\ifnum\zref@extractdefault{MPpos#1}{abspage}{0}=\value{abspage}
-			\begin{textblock*}{\marginparwidth}(\placeXpos,\placeYpos{#1})
-				\m@rginboxbynum{#1}%
-			\end{textblock*}
+            \ifthenelse{\skip@b@x{#1}=1}{%
+            }{%
+                \begin{textblock*}{\marginparwidth}(\placeXpos,\placeYpos{#1})
+                    \m@rginboxbynum{#1}%
+                \end{textblock*}%
+            }
 		\fi\addtocounter{abspage}{-1}%
 	}
 	\newcounter{loopCtrA}
@@ -854,6 +865,10 @@
 			\setcounter{loopCtrA}{1}%
 			\setcounter{loopCtrB}{2}%
 			\def\theA{\arabic{loopCtrA}}\def\theB{\arabic{loopCtrB}}%
+            \whiledo{\skip@b@x{\theA}=1}{\stepcounter{loopCtrA}}
+            \setcounter{loopCtrB}{\value{loopCtrA}}
+            \stepcounter{loopCtrB}
+            \whiledo{\skip@b@x{\theB}=1}{\stepcounter{loopCtrB}}
 			\setlength{\lastadjust}{\getadj{\theA}}%
 				\whiledo{\value{loopCtrA}<%
 						\zref@extractdefault{LastPage}{mparctr}{0}}{%
@@ -881,13 +896,45 @@
 					\@djustt@b@tt@m%
 				}%
 				\stepcounter{loopCtrA}
+                \whiledo{\skip@b@x{\theA}=1}{\stepcounter{loopCtrA}}
 				\stepcounter{loopCtrB}%
+                \setcounter{loopCtrB}{\value{loopCtrA}}
+                \stepcounter{loopCtrB}
+                \whiledo{\skip@b@x{\theB}=1}{\stepcounter{loopCtrB}}
 			}%
 			%\setadj{\theA}{\lastadjust}%
 			\@djustt@b@tt@m%
 			\ifnum\value{@uterL@@p}>10000 \def\sph@lt{1}\fi%
 		}%
 	}
+    \def\@ch@ckskipp@edb@x@s{
+        \setcounter{loopCtrA}{0}
+        \def\theA{\arabic{loopCtrA}}
+        \whiledo{\value{loopCtrA}<\zref@extractdefault{LastPage}{mparctr}{0}}{%
+            \stepcounter{loopCtrA}
+            \expandafter\xdef%
+                    \csname\zref@extractdefault{MPcitedet\theA}
+                        {mpciteref}{NOTHING}abspage\endcsname{0}
+        }
+        \setcounter{loopCtrA}{0}
+        \whiledo{\value{loopCtrA}<\zref@extractdefault{LastPage}{mparctr}{0}}{%
+            \stepcounter{loopCtrA}%
+            \ifthenelse{\zref@extractdefault{MPcitedet\theA}{mpiscite}{0}=1}%
+                {\ifthenelse{\csname
+                        \zref@extractdefault{MPcitedet\theA}
+                            {mpciteref}{NOTHING}abspage\endcsname=
+                        \zref@extractdefault{MPpos\theA}{abspage}{0}
+                    }
+                    {\expandafter\def\csname mp@skipb@x@data\theA\endcsname{1}}
+                    {\expandafter\def\csname mp@skipb@x@data\theA\endcsname{0}}
+                 \expandafter\xdef%
+                    \csname\zref@extractdefault{MPcitedet\theA}
+                        {mpciteref}{NOTHING}abspage\endcsname{%
+                          \zref@extractdefault{MPpos\theA}{abspage}{0}}
+                }
+                {\expandafter\def\csname mp@skipb@x@data\theA\endcsname{0}}
+        }%
+    }
 	\def\pl@ceb@xes@np@ge{%
 		\setcounter{loopCtrA}{0}%
 		\whiledo{\value{loopCtrA}<\zref@extractdefault{LastPage}{mparctr}{0}}{%
@@ -920,33 +967,40 @@
   %%%%%%%% Redefine citation style %%%%%%%%%%%%%
 
   %%% Record citations for page %%%%
-  \let\sp@cited@NOTHING\relax
-  \def\sp@lastcited{NOTHING}
-  \def\sp@flag@cited#1{\global\expandafter\let\csname%
-    sp@cited@#1\endcsname\sp@lastcited\gdef\sp@lastcited{#1}}
-  \def\sp@ifnotcited#1#2{\ignorespaces\expandafter\ifx\csname%
-    sp@cited@#1\endcsname\relax%
-    {#2}\sp@flag@cited{#1}%
-    \fi\ignorespaces%
-  }
-  \def\sp@clearcitations{%
-    \ifx\sp@lastcited\relax%
-    \gdef\sp@lastcited{NOTHING}%
-    \else%
-    \expandafter\let\expandafter\@tmp\csname sp@cited@\sp@lastcited\endcsname%
-    \global\expandafter\let\csname sp@cited@\sp@lastcited\endcsname\relax%
-    \global\let\sp@lastcited\@tmp%
-    \sp@clearcitations%
-    \fi%
-  }
-  \AtBeginPage{\sp@clearcitations}
+%  \let\sp@cited@NOTHING\relax
+%  \def\sp@lastcited{NOTHING}
+%  \def\sp@flag@cited#1{\global\expandafter\let\csname%
+%    sp@cited@#1\endcsname\sp@lastcited\gdef\sp@lastcited{#1}}
+%  \def\sp@ifnotcited#1#2{\ignorespaces\expandafter\ifx\csname%
+%    sp@cited@#1\endcsname\relax%
+%    {#2}\sp@flag@cited{#1}%
+%    \fi\ignorespaces%
+%  }
+%  \def\sp@clearcitations{%
+%    \ifx\sp@lastcited\relax%
+%    \gdef\sp@lastcited{NOTHING}%
+%    \else%
+%    \expandafter\let\expandafter\@tmp\csname sp@cited@\sp@lastcited\endcsname%
+%    \global\expandafter\let\csname sp@cited@\sp@lastcited\endcsname\relax%
+%    \global\let\sp@lastcited\@tmp%
+%    \sp@clearcitations%
+%    \fi%
+%  }
+%  \AtBeginPage{\sp@clearcitations}
 
   %%%% Output citations to margin %%%%%
-  \def\sp@declareCITE#1{\sp@ifnotcited{#1}{%
-      \marginpar{\normalfont\textsuperscript{\citep{#1}}\bibentry{#1}}}}
+%  \def\sp@declareCITE#1{\sp@ifnotcited{#1}{%
+%      \marginpar{\normalfont\textsuperscript{\citep{#1}}\bibentry{#1}}}}
+  \def\sp@declareCITE#1{%
+      \marginpar{\normalfont\textsuperscript{\citep{#1}}\bibentry{#1}}}
   \let\citeonly\cite
   \def\margincite#1{\sp@declare{sp@declareCITE}{#1}}
-  \renewcommand{\cite}[2][]{\citeonly[#1]{#2}\margincite{#2}}
+  \zref@newprop{mpiscite}{}
+  \zref@newprop{mpciteref}{}
+  \renewcommand{\cite}[2][]{\citeonly[#1]{#2}\margincite{#2}%
+     \immediate\write\@auxout{\zref@newlabel{MPcitedet\themparctr}%
+        {\string\mpiscite{1}\string\mpciteref{\unexpanded{#2}}}}%
+  }
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
   %%%%% Fix citation in right/left marks
