@@ -23,7 +23,7 @@
   \pgfpathmoveto{\pgfpoint{0}{3.5\arrowsize}}
   \pgfpathlineto{\pgfpoint{0}{-3.5\arrowsize}}
   \pgfusepathqstroke}
-\def\matrixnode#1#2{(m\thematrixcount-#1-#2)}
+\def\cdiagnode#1#2{(m\thematrixcount-#1-#2)}
 \def\sp@ar#1#2#3#4#5#6{%
   \@ifnextchar[%
   {\sp@arb{#1}{#2}{#3}{#4}{#5}{#6}}%
@@ -47,7 +47,7 @@
   \setcounter{sp@cdiagmat@bcnt}{#6}
   \addtocounter{sp@cdiagmat@bcnt}{#2}
   \draw[->,>=stealth']
-  \matrixnode{#5}{#6} edge [#9]  
+  \cdiagnode{#5}{#6} edge [#9]  
   node [#3] {$\scriptstyle #7$} 
   node [#4] {$\scriptstyle #8$} 
   (m\thematrixcount-\thesp@cdiagmat@acnt-\thesp@cdiagmat@bcnt);}
