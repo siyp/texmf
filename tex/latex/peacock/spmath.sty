@@ -18,54 +18,142 @@
 
 %%% Define jordanblock command
 \def\tmpamp{&}
-\newcounter{jbrcounter}
-\newcounter{jbccounter}
-\newcommand\internal@jordanblock[2]{
+\newcounter{sp@matrix@r@cnt}
+\newcounter{sp@matrix@c@cnt}
+\newcommand\matrixcells[4][0]{
+    \def\matrixcellserror{
+        \PackageError{spmath}{Not a number}{Command format should be
+            \protect\matrixcells[outputrow]{rows}{cols}{cellcommand},
+            where 'rows' is a number, 'cols' is a number and
+            'cellcommand' is the name of a command (without a
+            backslash) that takes two arguments {row}{cell} and
+            outputs the cell data. The optional argument 'outputrow'
+            is the row of cells to output.}
+    }
     \if!\ifnum9<1#1!\else_\fi
-        % #1 is a number 
-        \setcounter{jbrcounter}{0}
-        \whiledo{\value{jbrcounter}<#1}
-            {
-                \ifnum\value{jbrcounter}=0\else
-                    \\
-                \fi
-                \stepcounter{jbrcounter}
-                \setcounter{jbccounter}{0}
-                \whiledo{\value{jbccounter}<#1}
+        \if!\ifnum9<1#2!\else_\fi
+            \if!\ifnum9<1#3!\else_\fi
+                % #1, #2 and #3 are numbers
+                \setcounter{sp@matrix@r@cnt}{0}
+                \whiledo{\value{sp@matrix@r@cnt}<#2}
                     {
-                        \ifnum\value{jbccounter}=0\else
-                            \tmpamp
-                        \fi
-                        \stepcounter{jbccounter}
-                        \ifnum\value{jbrcounter}=\value{jbccounter}
-                            #2
-                        \else
-                            \stepcounter{jbrcounter}
-                            \ifnum\value{jbrcounter}=\value{jbccounter}
-                                1
-                            \else
-                                0
+                        \ifnum#1=0
+                            \ifnum\value{sp@matrix@r@cnt}=0\else
+                                \\
                             \fi
-                            \addtocounter{jbrcounter}{-1}
+                        \fi
+                        \stepcounter{sp@matrix@r@cnt}
+                        \if!\ifnum#1=0!\else%
+                            \ifnum#1=\value{sp@matrix@r@cnt}!%
+                                \else_\fi\fi
+                            \setcounter{sp@matrix@c@cnt}{0}
+                            \whiledo{\value{sp@matrix@c@cnt}<#3}
+                                {
+                                    \ifnum\value{sp@matrix@c@cnt}=0\else
+                                        \tmpamp
+                                    \fi
+                                    \stepcounter{sp@matrix@c@cnt}
+                                    \csname #4\endcsname
+                                        {\value{sp@matrix@r@cnt}}
+                                        {\value{sp@matrix@c@cnt}}
+                                }
                         \fi
                     }
-            }
+            \else
+                % #3 not a number
+                \matrixcellserror
+            \fi
+        \else
+            % #2 not a number
+            \matrixcellserror
+        \fi
     \else
-        % #1 is not a number
-        \PackageError{spmath}{Not a number}{Command format should be
-            \protect\jordanblock{size of block}{eigenvalue}}
+        % #1 not a number
+        \matrixcellserror
     \fi
 }
+\newcounter{sp@jb@counter}
+\def\int@jb@ev@let{}
+\def\int@jb@cell@cmd#1#2{%
+    \ifnum#1=#2
+        \int@jb@ev@let
+    \else
+        \setcounter{sp@jb@counter}{#1}
+        \stepcounter{sp@jb@counter}
+        \ifnum\value{sp@jb@counter}=#2
+            1
+        \else
+            0
+        \fi
+    \fi
+}
+\newcommand\jordanblockcells[3][0]{
+    \gdef\int@jb@ev@let{#3}
+    \matrixcells[#1]{#2}{#2}{int@jb@cell@cmd}
+}
+\def\int@id@cell@cmd#1#2{\ifnum#1=#2 1\else 0\fi}
+\newcommand\idmatrixcells[2][0]{
+    \matrixcells[#1]{#2}{#2}{int@id@cell@cmd}
+}
+\def\int@zero@cell@cmd#1#2{0}
+\newcommand\zeromatrixcells[3][0]{
+    \matrixcells[#1]{#2}{#3}{int@zero@cell@cmd}
+}
+\def\int@ones@cell@cmd#1#2{1}
+\newcommand\onesmatrixcells[3][0]{
+    \matrixcells[#1]{#2}{#3}{int@ones@cell@cmd}
+}
 \newcommand\jordanblock[2]{%
-    \begin{matrix}\internal@jordanblock{#1}{#2}\end{matrix}}
+    \begin{matrix}\jordanblockcells{#1}{#2}\end{matrix}}
 \newcommand\smalljordanblock[2]{%
-    \begin{smallmatrix}\internal@jordanblock{#1}{#2}\end{smallmatrix}}
+    \begin{smallmatrix}\jordanblockcells{#1}{#2}\end{smallmatrix}}
 \newcommand\pjordanblock[2]{%
     \left(\jordanblock{#1}{#2}\right)}
+\newcommand\bjordanblock[2]{%
+    \left[\jordanblock{#1}{#2}\right]}
 \newcommand\psmalljordanblock[2]{%
     \left(\smalljordanblock{#1}{#2}\right)}
 \newcommand\bsmalljordanblock[2]{%
     \left[\smalljordanblock{#1}{#2}\right]}
+
+\newcommand\identitymatrix[1]{%
+    \begin{matrix}\identitymatrixcells{#1}\end{matrix}}
+\newcommand\smallidentitymatrix[1]{%
+    \begin{smallmatrix}\identitymatrixcells{#1}\end{smallmatrix}}
+\newcommand\pidentitymatrix[1]{%
+    \left(\identitymatrix{#1}\right)}
+\newcommand\bidentitymatrix[1]{%
+    \left[\identitymatrix{#1}\right]}
+\newcommand\psmallidentitymatrix[1]{%
+    \left(\smallidentitymatrix{#1}\right)}
+\newcommand\bsmallidentitymatrix[1]{%
+    \left[\smallidentitymatrix{#1}\right]}
+
+\newcommand\zeromatrix[2]{%
+    \begin{matrix}\zeromatrixcells{#1}{#2}\end{matrix}}
+\newcommand\smallzeromatrix[2]{%
+    \begin{smallmatrix}\zeromatrixcells{#1}{#2}\end{smallmatrix}}
+\newcommand\pzeromatrix[2]{%
+    \left(\zeromatrix{#1}{#2}\right)}
+\newcommand\bzeromatrix[2]{%
+    \left[\zeromatrix{#1}{#2}\right]}
+\newcommand\psmallzeromatrix[2]{%
+    \left(\smallzeromatrix{#1}{#2}\right)}
+\newcommand\bsmallzeromatrix[2]{%
+    \left[\smallzeromatrix{#1}{#2}\right]}
+
+\newcommand\onesmatrix[2]{%
+    \begin{matrix}\onesmatrixcells{#1}{#2}\end{matrix}}
+\newcommand\smallonesmatrix[2]{%
+    \begin{smallmatrix}\onesmatrixcells{#1}{#2}\end{smallmatrix}}
+\newcommand\ponesmatrix[2]{%
+    \left(\onesmatrix{#1}{#2}\right)}
+\newcommand\bonesmatrix[2]{%
+    \left[\onesmatrix{#1}{#2}\right]}
+\newcommand\psmallonesmatrix[2]{%
+    \left(\smallonesmatrix{#1}{#2}\right)}
+\newcommand\bsmallonesmatrix[2]{%
+    \left[\smallonesmatrix{#1}{#2}\right]}
 %%%%%%%%
 
 %%%%%% Define left subscript command
