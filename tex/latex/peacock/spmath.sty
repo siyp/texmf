@@ -16,6 +16,58 @@
 \RequirePackage{amssymb}
 \RequirePackage{tikz}
 
+%%% Define jordanblock command
+\def\tmpamp{&}
+\newcounter{jbrcounter}
+\newcounter{jbccounter}
+\newcommand\internal@jordanblock[2]{
+    \if!\ifnum9<1#1!\else_\fi
+        % #1 is a number 
+        \setcounter{jbrcounter}{0}
+        \whiledo{\value{jbrcounter}<#1}
+            {
+                \ifnum\value{jbrcounter}=0\else
+                    \\
+                \fi
+                \stepcounter{jbrcounter}
+                \setcounter{jbccounter}{0}
+                \whiledo{\value{jbccounter}<#1}
+                    {
+                        \ifnum\value{jbccounter}=0\else
+                            \tmpamp
+                        \fi
+                        \stepcounter{jbccounter}
+                        \ifnum\value{jbrcounter}=\value{jbccounter}
+                            #2
+                        \else
+                            \stepcounter{jbrcounter}
+                            \ifnum\value{jbrcounter}=\value{jbccounter}
+                                1
+                            \else
+                                0
+                            \fi
+                            \addtocounter{jbrcounter}{-1}
+                        \fi
+                    }
+            }
+    \else
+        % #1 is not a number
+        \PackageError{spmath}{Not a number}{Command format should be
+            \protect\jordanblock{size of block}{eigenvalue}}
+    \fi
+}
+\newcommand\jordanblock[2]{%
+    \begin{matrix}\internal@jordanblock{#1}{#2}\end{matrix}}
+\newcommand\smalljordanblock[2]{%
+    \begin{smallmatrix}\internal@jordanblock{#1}{#2}\end{smallmatrix}}
+\newcommand\pjordanblock[2]{%
+    \left(\jordanblock{#1}{#2}\right)}
+\newcommand\psmalljordanblock[2]{%
+    \left(\smalljordanblock{#1}{#2}\right)}
+\newcommand\bsmalljordanblock[2]{%
+    \left[\smalljordanblock{#1}{#2}\right]}
+%%%%%%%%
+
 %%%%%% Define left subscript command
 \def\leftsub#1#2{%
         \mathop{}%
