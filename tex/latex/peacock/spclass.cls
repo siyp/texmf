@@ -741,19 +741,30 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%% Set up environment for running bibliography %%%%
+\ifsp@bib
+    \AtBeginDocument{\nobibliography*\bibliographystyle{spalpha}}
+\fi
 
 %%%%%%%% Define margin environments %%%%%%%%%%
-\provideenvironment{marginfigure}[1][]%
-  {\PackageWarning{spclass}{Option 'nomargin' specified, 'marginfigure'
-      environment will be ignored.}}
-  {}
-
+% Define default warnings if for 'nomargin' option
+\provideenvironment{marginfigure}[1][]{%
+    \PackageWarning{spclass}{Option 'nomargin' specified,
+        'marginfigure' environment will be ignored.}
+}{}
+\let\citeonly\cite
+\def\margincite#1{%
+    \PackageWarning{spclass}{Option 'nomargin' specified,
+        'margincite' macro will be ignored.}%
+}
+\def\sidenote#1{%
+    \PackageWarning{spclass}{Option 'nomargin' specified,
+        'sidenote' macro will be ignored.}%
+}
+\let\marginnote\sidenote
+\let\footernote\footnote
 
 \ifsp@margin
-	\ifsp@bib
-		\AtBeginDocument{\nobibliography*\bibliographystyle{spalpha}}
-	\fi
 	\AtBeginDocument{\@ch@ckskipp@edb@x@s%
         \@djustm@rginp@siti@ns\pl@ceb@xes@np@ge}
 	\AtBeginShipout{\pl@ceb@xes@np@ge}
@@ -965,41 +976,19 @@
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   %%%%%%%% Redefine citation style %%%%%%%%%%%%%
-
-  %%% Record citations for page %%%%
-%  \let\sp@cited@NOTHING\relax
-%  \def\sp@lastcited{NOTHING}
-%  \def\sp@flag@cited#1{\global\expandafter\let\csname%
-%    sp@cited@#1\endcsname\sp@lastcited\gdef\sp@lastcited{#1}}
-%  \def\sp@ifnotcited#1#2{\ignorespaces\expandafter\ifx\csname%
-%    sp@cited@#1\endcsname\relax%
-%    {#2}\sp@flag@cited{#1}%
-%    \fi\ignorespaces%
-%  }
-%  \def\sp@clearcitations{%
-%    \ifx\sp@lastcited\relax%
-%    \gdef\sp@lastcited{NOTHING}%
-%    \else%
-%    \expandafter\let\expandafter\@tmp\csname sp@cited@\sp@lastcited\endcsname%
-%    \global\expandafter\let\csname sp@cited@\sp@lastcited\endcsname\relax%
-%    \global\let\sp@lastcited\@tmp%
-%    \sp@clearcitations%
-%    \fi%
-%  }
-%  \AtBeginPage{\sp@clearcitations}
-
   %%%% Output citations to margin %%%%%
-%  \def\sp@declareCITE#1{\sp@ifnotcited{#1}{%
-%      \marginpar{\normalfont\textsuperscript{\citep{#1}}\bibentry{#1}}}}
   \def\sp@declareCITE#1{%
       \marginpar{\normalfont\textsuperscript{\citep{#1}}\bibentry{#1}}}
-  \let\citeonly\cite
   \def\margincite#1{\sp@declare{sp@declareCITE}{#1}}
   \zref@newprop{mpiscite}{}
   \zref@newprop{mpciteref}{}
-  \renewcommand{\cite}[2][]{\citeonly[#1]{#2}\margincite{#2}%
-     \immediate\write\@auxout{\zref@newlabel{MPcitedet\themparctr}%
-        {\string\mpiscite{1}\string\mpciteref{\unexpanded{#2}}}}%
+  \renewcommand{\cite}[2][]{%
+        \nocite{#2}%
+        \citeonly[#1]{#2}\margincite{#2}%
+        \immediate\write\@auxout{%
+            \zref@newlabel{MPcitedet\themparctr}%
+            {\string\mpiscite{1}\string\mpciteref{\unexpanded{#2}}}%
+        }%
   }
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
