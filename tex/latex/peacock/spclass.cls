@@ -23,29 +23,35 @@
     \sp@insidemarginwidth=0.5cm
     \sp@outsidemarginwidth=0.5cm
     \sloppy}
-\DeclareOption{a4paper}
-   {\setlength\paperheight {297mm}%
+\DeclareOption{a3paper} {
+    \setlength\paperheight {420mm}%
+    \setlength\paperwidth  {297mm}}
+\DeclareOption{a4paper} {
+    \setlength\paperheight {297mm}%
     \setlength\paperwidth  {210mm}}
-\DeclareOption{a5paper}
-   {\setlength\paperheight {210mm}%
+\DeclareOption{a5paper} {
+   \setlength\paperheight {210mm}%
     \setlength\paperwidth  {148mm}}
-\DeclareOption{b4paper}
-   {\setlength\paperheight {353mm}%
+\DeclareOption{b4paper} {
+    \setlength\paperheight {353mm}%
     \setlength\paperwidth  {250mm}}
-\DeclareOption{b5paper}
-   {\setlength\paperheight {250mm}%
+\DeclareOption{b5paper} {
+    \setlength\paperheight {250mm}%
     \setlength\paperwidth  {176mm}}
-\DeclareOption{letterpaper}
-   {\setlength\paperheight {11in}%
+\DeclareOption{b6paper} {
+    \setlength\paperheight {176mm}%
+    \setlength\paperwidth  {125mm}}
+\DeclareOption{letterpaper} {
+    \setlength\paperheight {11in}%
     \setlength\paperwidth  {8.5in}}
-\DeclareOption{legalpaper}
-   {\setlength\paperheight {14in}%
+\DeclareOption{legalpaper} {
+   \setlength\paperheight {14in}%
     \setlength\paperwidth  {8.5in}}
 \DeclareOption{executivepaper}
    {\setlength\paperheight {10.5in}%
     \setlength\paperwidth  {7.25in}}
-\DeclareOption{landscape}
-   {\setlength\@tempdima   {\paperheight}%
+\DeclareOption{landscape} {
+    \setlength\@tempdima   {\paperheight}%
     \setlength\paperheight {\paperwidth}%
     \setlength\paperwidth  {\@tempdima}}
 \DeclareOption{8pt}{\renewcommand\@ptsize{8}}
@@ -704,7 +710,7 @@
         \sp@headeroffset-0.63\marginparwidth
         \advance\sp@headeroffset-\marginparsep
     \else
-        \marginparwidth=3\sp@gutterwidth
+        \marginparwidth=3.5\sp@gutterwidth
     \fi
 
     \advance\oddsidemargin-1in
