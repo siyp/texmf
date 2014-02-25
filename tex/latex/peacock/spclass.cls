@@ -676,58 +676,51 @@
 %\voffset=-72pt
 %\hoffset=-72pt
 \def\sp@calctextwidth{%
-  \textwidth=\paperwidth%
-  \advance\textwidth-1in
-  \advance\textwidth-\hoffset
-  \advance\textwidth-\oddsidemargin%
-  \advance\textwidth-\marginparsep%
-  \advance\textwidth-\marginparwidth%
-  \advance\textwidth-\sp@gutterwidth}
+    \textwidth=\paperwidth%
+    \advance\textwidth-1in
+    \advance\textwidth-\hoffset
+    \advance\textwidth-\oddsidemargin%
+    \advance\textwidth-\marginparsep%
+    \advance\textwidth-\marginparwidth%
+    \advance\textwidth-\sp@gutterwidth
+}
 \def\sp@calcevensidemargin{%
-  \evensidemargin=\sp@gutterwidth%
-  \advance\evensidemargin\marginparwidth%
-  \advance\evensidemargin\marginparsep
-  \advance\evensidemargin-1in
-  \advance\evensidemargin-\hoffset}
+    \evensidemargin=\sp@gutterwidth%
+    \advance\evensidemargin\marginparwidth%
+    \advance\evensidemargin\marginparsep
+    \advance\evensidemargin-1in
+    \advance\evensidemargin-\hoffset
+}
  
+\sp@headeroffset0pt
 \ifsp@stdmargins
-  \oddsidemargin=0.1\paperwidth
-  \marginparsep=0.1\oddsidemargin
-  \marginparwidth=0.8\oddsidemargin
-  \sp@gutterwidth=0.04\paperwidth
+    \textwidth=0.618\paperwidth
+    \marginparwidth=0.236\paperwidth
+    \oddsidemargin=0.090\paperwidth
+    \sp@gutterwidth=0.034\paperwidth
+    \marginparsep=0.021\paperwidth
 
-  \advance\oddsidemargin-1in
-  \advance\oddsidemargin-\hoffset
+    \ifsp@margin
+        \sp@headeroffset-0.63\marginparwidth
+        \advance\sp@headeroffset-\marginparsep
+    \else
+        \marginparwidth=3\sp@gutterwidth
+    \fi
 
-\textwidth=0.618\paperwidth
-\marginparwidth=0.236\paperwidth
-\oddsidemargin=0.090\paperwidth
-\sp@gutterwidth=0.034\paperwidth
-\marginparsep=0.021\paperwidth
-
-\advance\oddsidemargin-1in
-\advance\oddsidemargin-\hoffset
-
+    \advance\oddsidemargin-1in
+    \advance\oddsidemargin-\hoffset
 \else
-  \oddsidemargin=\sp@insidemarginwidth
-  \advance\oddsidemargin-1in
-  \advance\oddsidemargin-\hoffset
-  \marginparsep=0.1\sp@outsidemarginwidth
-  \marginparwidth=0.8\sp@outsidemarginwidth
-  \sp@gutterwidth=0.1\sp@outsidemarginwidth
+    \oddsidemargin=\sp@insidemarginwidth
+    \advance\oddsidemargin-1in
+    \advance\oddsidemargin-\hoffset
+    \marginparsep=0.1\sp@outsidemarginwidth
+    \marginparwidth=0.8\sp@outsidemarginwidth
+    \sp@gutterwidth=0.1\sp@outsidemarginwidth
 \fi
+
 \sp@calctextwidth
 \sp@calcevensidemargin
 
-\sp@headeroffset0pt
-\ifsp@margin
-%  \marginparsep=0.032\paperwidth
-%  \marginparwidth=0.26\paperwidth
-%  \sp@calctextwidth
-%  \sp@calcevensidemargin
-    \sp@headeroffset-0.63\marginparwidth
-    \advance\sp@headeroffset-\marginparsep
-\fi
 
 \topmargin=0.05\paperheight
 \advance\topmargin-1in
