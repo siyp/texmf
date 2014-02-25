@@ -17,7 +17,16 @@
 \RequirePackage{tikz}
 
 %%% Define jordanblock command
-\def\tmpamp{&}
+\def\sp@math@mat@amp{&}
+\def\varmatrowcells#1#2#3#4{%
+    {#1} & {#2} & {#3} & {#4} 
+}
+\def\varmatcells#1#2#3#4#5#6#7#8#9{%
+    \varmatrowcells{#1}{#2}\cdots{#3} \\
+    \varmatrowcells{#4}{#5}\cdots{#6} \\
+    \varmatrowcells\vdots\vdots\ddots\vdots \\
+    \varmatrowcells{#7}{#8}\cdots{#9}
+}
 \newcounter{sp@matrix@r@cnt}
 \newcounter{sp@matrix@c@cnt}
 \newcommand\matrixcells[4][0]{
@@ -50,7 +59,7 @@
                             \whiledo{\value{sp@matrix@c@cnt}<#3}
                                 {
                                     \ifnum\value{sp@matrix@c@cnt}=0\else
-                                        \tmpamp
+                                        \sp@math@mat@amp
                                     \fi
                                     \stepcounter{sp@matrix@c@cnt}
                                     \csname #4\endcsname
@@ -71,6 +80,28 @@
         % #1 not a number
         \matrixcellserror
     \fi
+}
+\newcommand\varmatrix[9]{
+    \begin{matrix}
+        \varmatcells{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}
+    \end{matrix}
+}
+\newcommand\smallvarmatrix[9]{
+    \begin{smallmatrix}
+        \varmatcells{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}
+    \end{smallmatrix}
+}
+\newcommand\pvarmatrix[9]{
+    \left(\varmatrix{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}\right)
+}
+\newcommand\bvarmatrix[9]{
+    \left[\varmatrix{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}\right]
+}
+\newcommand\psmallvarmatrix[9]{
+    \left(\smallvarmatrix{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}\right)
+}
+\newcommand\bsmallvarmatrix[9]{
+    \left[\smallvarmatrix{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}{#9}\right]
 }
 \newcounter{sp@jb@counter}
 \def\int@jb@ev@let{}
