@@ -16,12 +16,17 @@
 \newlength\sp@insidemarginwidth
 \newlength\sp@outsidemarginwidth
 
+\newif\ifsp@disallowmargin
+\sp@disallowmarginfalse
+
 \DeclareOption{kindlepaper}
    {\setlength\paperheight {4.8in}%
     \setlength\paperwidth  {3.6in}%
     \sp@stdmarginsfalse
     \sp@insidemarginwidth=0.5cm
     \sp@outsidemarginwidth=0.5cm
+    \sp@disallowmargintrue
+    \renewcommand\@ptsize{8}
     \sloppy}
 \DeclareOption{a3paper} {
     \setlength\paperheight {420mm}%
@@ -87,6 +92,11 @@
 
 \ExecuteOptions{a4paper,10pt,oneside,final,fonts,margin,bib}
 \ProcessOptions
+
+%%% Override margin option for some paper types %%%%
+\ifsp@disallowmargin
+    \sp@marginfalse
+\fi
 
 \def\EC@family#1#2#3#4#5{%
   \DeclareFontShape{#1}{#2}{#3}{#4}%
@@ -977,7 +987,9 @@
   %%%%%%%% Redefine citation style %%%%%%%%%%%%%
   %%%% Output citations to margin %%%%%
   \def\sp@declareCITE#1{%
-      \marginpar{\normalfont\textsuperscript{\citep{#1}}\bibentry{#1}}}
+      \marginpar{\normalfont%
+      %\textsuperscript{\citep{#1}}%
+      \citep{#1}~\bibentry{#1}}}
   \def\margincite#1{\sp@declare{sp@declareCITE}{#1}}
   \zref@newprop{mpiscite}{}
   \zref@newprop{mpciteref}{}
