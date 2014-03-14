@@ -18,7 +18,6 @@
 
 \newif\ifsp@disallowmargin
 \sp@disallowmarginfalse
-
 \DeclareOption{kindlepaper}
    {\setlength\paperheight {4.8in}%
     \setlength\paperwidth  {3.6in}%
@@ -88,9 +87,12 @@
 \DeclareOption{nomargin}{\sp@marginfalse}
 \DeclareOption{bib}{\sp@bibtrue}
 \DeclareOption{nobib}{\sp@bibfalse}
+
+\DeclareOption{sloppy}{\sloppy}
+\DeclareOption{rigid}{\rigid}
 %%%%%%%%%%%%%%
 
-\ExecuteOptions{a4paper,10pt,oneside,final,fonts,margin,bib}
+\ExecuteOptions{a4paper,10pt,oneside,final,fonts,margin,bib,sloppy}
 \ProcessOptions
 
 %%% Override margin option for some paper types %%%%
@@ -757,6 +759,16 @@
 
 %%%%%%%% Define margin environments %%%%%%%%%%
 % Define default warnings if for 'nomargin' option
+\let\std@marginpar\marginpar
+\def\marginpar#1{
+    \PackageWarning{spclass}{Command 'marginpar' used, do you mean
+    'marginnote'?}
+    \std@marginpar{#1}
+}
+\def\marginnote#1{%
+    \PackageWarning{spclass}{Option 'nomargin' specified,
+        'marginnote' macro will be ignored.}
+}
 \provideenvironment{marginfigure}[1][]{%
     \PackageWarning{spclass}{Option 'nomargin' specified,
         'marginfigure' environment will be ignored.}
@@ -770,15 +782,12 @@
     \PackageWarning{spclass}{Option 'nomargin' specified,
         'sidenote' macro will be ignored.}%
 }
-\let\marginnote\sidenote
 \let\footernote\footnote
 
 \ifsp@margin
 	\AtBeginDocument{\@ch@ckskipp@edb@x@s%
         \@djustm@rginp@siti@ns\pl@ceb@xes@np@ge}
 	\AtBeginShipout{\pl@ceb@xes@np@ge}
-
-	\let\sp@oldmarginpar\marginpar
 	
 	\def\m@rgintextformat#1{\footnotesize{}#1\vspace*{3ex}}
 	\def\m@rginbox#1{\noindent\begin{minipage}[t]{\marginparwidth}
@@ -814,7 +823,7 @@
 	\zref@newprop{mpcontent}{}
 	\zref@newprop{mpheight}{}
 	\zref@newprop{mpadjust}{}
-	\def\marginpar#1{%
+	\def\marginnote#1{%
 		\stepcounter{mparctr}%
 		\immediate\write\@auxout{\zref@newlabel{MPcon\themparctr}%
 			{%
@@ -963,23 +972,19 @@
 		}%
 	}
 
-  \def\stdmarginpar#1{\sp@oldmarginpar{\m@rgintextformat{#1}}}
   \newsavebox{\sp@marginbox}
-
   \defenvironment{marginfigure}[1][0pt]
     {\begin{lrbox}{\sp@marginbox}
         \begin{minipage}{\marginparwidth}
           \hbox{}\footnotesize\vspace*{#1}}
     {\end{minipage}\end{lrbox}%
-    	\stdmarginpar{\usebox{\sp@marginbox}}}
+    	\marginpar{\m@rgintextformat{\usebox{\sp@marginbox}}}}
   
-	  %\string\sidenote{\value{footnote}}%
   \def\sidenote#1{\refstepcounter{footnote}\textsuperscript{\thefootnote}%
     \stepcounter{mparctr}%
     \zref@label{sidenote\themparctr}%
 	\addtocounter{mparctr}{-1}%
-	\marginpar{#1}}
-  \let\marginnote\sidenote
+	\marginnote{#1}}
   \let\footernote\footnote
   \let\footnote\sidenote
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -987,7 +992,7 @@
   %%%%%%%% Redefine citation style %%%%%%%%%%%%%
   %%%% Output citations to margin %%%%%
   \def\sp@declareCITE#1{%
-      \marginpar{\normalfont%
+      \marginnote{\normalfont%
       %\textsuperscript{\citep{#1}}%
       \citep{#1}~\bibentry{#1}}}
   \def\margincite#1{\sp@declare{sp@declareCITE}{#1}}
