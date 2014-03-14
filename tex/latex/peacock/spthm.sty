@@ -52,16 +52,26 @@
       \hspace {1em}}}}
 
 \newenvironment{sp@thmstyle}[3][]%
-    { \vspace{\parskip}\par\noindent%
-      \def\FrameCommand {\sp@hgt=\ht\@tempboxa\sp@frame}%
-      \def\FirstFrameCommand{\sp@hgt=\ht\tw@\sp@frame}%
-      \def\MidFrameCommand{\sp@hgt=\ht\tw@\sp@framex}%
-      \def\LastFrameCommand{\sp@hgt=\ht\@tempboxa\sp@framex}%
-      \MakeFramed {\advance \hsize -\width \FrameRestore}%
-      \parindent=0pt\parskip=1ex%
-      \hspace*{-1em}\hspace*{-8pt}
-      {{\bfseries #3{\ifx#2\empty\else{} #2\fi:}}{ \emph{
-          #1}}}\par\vspace{0.2ex}}% 
+    {
+        \vspace{\parskip}\par\noindent%
+        \def\FrameCommand {\sp@hgt=\ht\@tempboxa\sp@frame}%
+        \def\FirstFrameCommand{\sp@hgt=\ht\tw@\sp@frame}%
+        \def\MidFrameCommand{\sp@hgt=\ht\tw@\sp@framex}%
+        \def\LastFrameCommand{\sp@hgt=\ht\@tempboxa\sp@framex}%
+        \MakeFramed {\advance \hsize -\width \FrameRestore}%
+        \let\tmp@footernote\footernote
+        \def\footernote{
+            \PackageWarning{spthm}{%
+                A 'footnote' inside a bordered theorem may not
+                appear please check the output to be sure.
+            }
+            \tmp@footernote{#1}
+        }
+        \parindent=0pt\parskip=1ex%
+        \hspace*{-1em}\hspace*{-8pt}
+        {{\bfseries #3{\ifx#2\empty\else{} #2\fi:}}{ \emph{
+                    #1}}}\par\vspace{0.2ex}
+    }
     {\endMakeFramed\vspace{-\parskip}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
