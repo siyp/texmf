@@ -16,7 +16,15 @@
 \RequirePackage{amssymb}
 \RequirePackage{tikz}
 
-%%% Define jordanblock command
+%%% Define some quick matrix commands
+
+\newenvironment{psmallmatrix}%
+    {\left(\begin{smallmatrix}}
+    {\end{smallmatrix}\right)}
+\newenvironment{bsmallmatrix}%
+    {\left[\begin{smallmatrix}}
+    {\end{smallmatrix}\right]}
+
 \def\sp@math@mat@amp{&}
 \def\varmatrowcells#1#2#3#4{%
     {#1} & {#2} & {#3} & {#4} 
